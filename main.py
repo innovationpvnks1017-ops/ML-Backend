@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from backend.ml_processor import MLProcessor  # ✅ FIXED: no 'backend.'
+from ml_processor import MLProcessor  # ✅ FIXED: no 'backend.'
   # ✅ correct import
 
 app = FastAPI()  # ✅ this must be global, not inside a function
