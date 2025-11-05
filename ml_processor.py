@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from backend.ml_processor import MLProcessor
+from ml_processor import MLProcessor
 
 # Initialize FastAPI app
 app = FastAPI(
