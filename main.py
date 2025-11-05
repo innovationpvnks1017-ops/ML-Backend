@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from ml_processor import MLProcessor  # ✅ Import your ML logic
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -9,20 +10,24 @@ app = FastAPI(
     version="1.0",
 )
 
-# Allow frontend (Lovable / Next.js) to connect
+# ---------------------- #
+#  CORS Setup
+# ---------------------- #
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Or restrict to your frontend domain
+    allow_origins=["*"],  # You can restrict later to your Lovable frontend domain
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ---------------------- #
-#  Define API Schema
+#  Define Input Schema
 # ---------------------- #
 class ExperimentRequest(BaseModel):
-    dataset_name: str
-    model_name: str
+    dataset: str                # From Lovable frontend: config.dataset
+    models: list[str]           # From Lovable frontend: config.models
+    learning_type: str | None = None
+    visualizations: list[str] | None = None
     test_size: float = 0.2
     random_state: int = 42
 
@@ -32,21 +37,31 @@ class ExperimentRequest(BaseModel):
 # ---------------------- #
 @app.post("/api/run-experiment")
 async def run_experiment(request: ExperimentRequest):
-    """Endpoint that runs ML pipeline and returns metrics."""
+    """
+    Endpoint that runs ML pipeline and returns evaluation metrics.
+    Compatible with Lovable frontend config structure.
+    """
     try:
+        # Just run the first model (Lovable can send multiple)
+        model_name = request.models[0] if request.models else "random_forest"
+
         processor = MLProcessor(
-            dataset_name=request.dataset_name,
-            model_name=request.model_name,
+            dataset_name=request.dataset,
+            model_name=model_name,
             test_size=request.test_size,
             random_state=request.random_state,
         )
         results = processor.run_experiment()
+
         return {"status": "success", "results": results}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Root endpoint
+# ---------------------- #
+#  Root Endpoint
+# ---------------------- #
 @app.get("/")
 async def root():
-    return {"message": "Backend is running! Visit /api/run-experiment to test."}
+    return {"message": "✅ Backend is running! Use POST /api/run-experiment"}
