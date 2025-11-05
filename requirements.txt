@@ -1,8 +1,16 @@
+# Core Web Framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
+
+# Data & Machine Learning
 pandas==2.1.3
 numpy==1.26.2
 scikit-learn==1.3.2
 matplotlib==3.8.0
+
+# Validation & Schema
 pydantic==2.5.0
-python-3.10.13
+
+# Optional utilities
+python-multipart==0.0.6    # for file uploads (optional but safe)
+joblib==1.3.2              # for model serialization
